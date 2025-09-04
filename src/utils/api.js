@@ -1,4 +1,6 @@
-const TIMEOUT_MS = 2000;
+// src/utils/api.js
+const API = process.env.REACT_APP_API_URL || "http://127.0.0.1:8000/api/v1";
+const TIMEOUT_MS = 10000; // 10s pour laisser le temps au warm-up TF
 
 function mockFromImage(dataUrl) {
   let h = 0; for (let i = 0; i < dataUrl.length; i++) h = (h * 31 + dataUrl.charCodeAt(i)) | 0;
@@ -16,14 +18,22 @@ async function fetchWithTimeout(url, options = {}, ms = TIMEOUT_MS) {
 
 export async function predictDigit(dataUrl) {
   try {
-    const res = await fetchWithTimeout('/predict', {
+    const res = await fetchWithTimeout(`${API}/predict`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ image: dataUrl }),
     });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return await res.json();
-  } catch {
-    return mockFromImage(dataUrl); // backend not ready → mock
+    const json = await res.json();
+    // normalise le format pour que ton UI accepte soit l'ancien mock soit le backend
+    return {
+      prediction: json.digit,
+      probs: [{ digit: json.digit, prob: json.proba }],
+      raw: json, // au cas où tu l’affiches ailleurs
+    };
+  } catch (e) {
+    // Utilise le mock seulement si explicitement demandé
+    if (process.env.REACT_APP_USE_MOCK === '1') return mockFromImage(dataUrl);
+    throw e; // laisser App.js afficher l’erreur (ErrorBanner)
   }
 }
