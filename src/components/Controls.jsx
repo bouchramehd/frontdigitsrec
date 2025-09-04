@@ -1,9 +1,26 @@
-import React from 'react';
+import React from "react";
+
 export default function Controls({ onClear, onPredict, loading }) {
   return (
-    <div style={{ display: 'flex', gap: 8, marginTop: 12 }}>
-      <button onClick={onClear} disabled={loading}>Clear</button>
-      <button onClick={onPredict} disabled={loading}>{loading ? 'Predicting…' : 'Predict'}</button>
+    <div className="row" style={{ marginTop: 8 }}>
+      <button
+        type="button"
+        className="btn"
+        onClick={onClear}
+        disabled={loading}
+      >
+        Clear
+      </button>
+
+      <button
+        type="button"
+        className="btn btn--primary"
+        onClick={onPredict}
+        disabled={loading}
+      >
+        {loading && <span className="loader" aria-hidden="true" />}
+        {loading ? "Predicting…" : "Predict"}
+      </button>
     </div>
   );
 }
