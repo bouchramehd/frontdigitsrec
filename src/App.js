@@ -26,10 +26,7 @@ export default function App() {
   const handlePredict = useCallback(async () => {
     try {
       setLoading(true); setError('');
-      const dataUrl =
-        canvasRef.current?.toBackend28x28DataURL?.() ||
-        canvasRef.current?.to28x28DataURL?.({ invert: false }) ||
-        canvasRef.current?.toDataURL?.('image/png');
+      const dataUrl = canvasRef.current?.toDataURL();
       const json = await predictDigit(dataUrl);
       setResult(json);
     } catch (e) {
